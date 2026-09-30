@@ -1,0 +1,118 @@
+Using the **previously identified cohort of CKD G3a–G5 patients with KDIGO-defined AKI**, determine which patients were **taking a RAAS inhibitor before the AKI admission**.
+
+Search **ALL available outpatient and inpatient medication sources** in REACH. Do not rely on a single medication table.
+
+Search, if available:
+- Outpatient active medication lists
+- Ambulatory medication orders
+- Medication reconciliation at admission
+- Home medications documented on admission
+- Prior inpatient discharge medication lists
+- Prescription/order history
+- Pharmacy/dispensing/fill data
+- Claims medication data
+- Medication administration records
+- Inpatient orders indicating continuation of a home medication
+- Encounter medication tables
+- Medication history tables
+- Structured medication ingredient/RxNorm tables
+
+**Pre-Admission Exposure Window**
+Define the primary RAASi exposure window as the **90 days immediately before the AKI admission date/time through immediately before admission**.
+
+Classify a patient as `pre_AKI_RAASi = YES` if there is credible evidence that a RAAS inhibitor was active during this 90-day window and was not clearly discontinued before admission.
+
+Use the following exposure hierarchy:
+1. Admission medication reconciliation/home medication list showing current RAASi use
+2. Active outpatient medication order or pharmacy dispensing/fill close to admission
+3. Recent outpatient medication list
+4. Prior discharge medication list showing continued RAASi therapy
+5. Older medication order within 90 days without clear confirmation of continued use
+
+Search medication history **beyond 90 days only when needed to establish continuity**, but use the 90-day period as the primary exposure window.
+
+Do NOT classify as exposed if:
+- RAASi was first started during or after the AKI admission
+- The medication was clearly discontinued before admission
+- The only evidence is an old historical/inactive order without evidence of ongoing use
+
+**RAASi identification**
+Identify medications by **generic/active ingredient**, not medication name alone.
+
+Include:
+- ACE inhibitors
+- ARBs
+- ARNI products containing an ARB
+- Direct renin inhibitors, if present
+
+Also capture **fixed-dose combination products containing a RAASi**, such as:
+- losartan/HCTZ
+- valsartan/HCTZ
+- olmesartan/amlodipine
+- amlodipine/benazepril
+- other ACEi/ARB-containing combination products
+
+Do not count mineralocorticoid receptor antagonists as RAASi unless separately specified; report them separately if found.
+
+Create:
+- `pre_AKI_RAASi = YES / NO / UNCERTAIN`
+- `last_RAASi_evidence_date`
+- `days_from_last_RAASi_evidence_to_AKI_admission`
+- `RAASi_source`
+- `RAASi_source_count`
+- `RAASi_sources_used`
+- `RAASi_exposure_confidence = HIGH / MODERATE / LOW`
+
+Suggested confidence:
+- **HIGH:** confirmed by ≥2 independent medication sources close to admission
+- **MODERATE:** one strong source such as medication reconciliation, active outpatient medication, or dispensing data
+- **LOW/UNCERTAIN:** historical order within 90 days without clear evidence that therapy remained active
+
+For exposed patients include:
+- Patient ID
+- AKI encounter ID
+- AKI admission date
+- RAASi generic ingredient
+- Product/brand name if available
+- RAASi class
+- Combination-product ingredients
+- Dose
+- Frequency
+- Medication start date
+- Stop/end date
+- Medication status
+- Most recent evidence date before admission
+- Source table establishing exposure
+- Whether it appeared on the admission medication reconciliation/home medication list
+
+**Cross-validation**
+Where possible, confirm exposure using more than one source, for example:
+- outpatient active medication + admission medication reconciliation
+- dispensing record + home medication list
+- prior discharge medication list + later outpatient medication record
+
+**Quality control**
+- First inspect the REACH schema; **do not guess table or column names**.
+- Normalize medication names using generic ingredient/RxNorm fields when available.
+- Deduplicate medication records.
+- Correctly identify combination products.
+- Preserve the original CKD/KDIGO-AKI cohort; do not redefine it.
+- Return **one summary row per AKI encounter**, with a separate medication-detail output if needed.
+- Flag conflicting or ambiguous medication histories rather than assuming exposure.
+- Provide counts of:
+  1. Total AKI cohort
+  2. RAASi exposed within 90 days before admission
+  3. Not exposed
+  4. Uncertain
+  5. Exposure confirmed by ≥2 sources
+  6. Exposure identified from only one source
+
+Before generating the final query, show:
+1. Every medication table searched
+2. Join keys used
+3. RAASi ingredient list/mapping
+4. Combination-product logic
+5. 90-day pre-admission exposure logic
+6. How conflicting medication records were handled
+
+Then generate the final **Databricks SQL/Spark SQL query**.
