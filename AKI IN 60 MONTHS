@@ -1,0 +1,67 @@
+Identify all **adult inpatient admissions during the last 60 months** meeting ALL of the following:
+
+**1. Pre-existing CKD G3a–G5, not on dialysis**
+Define CKD primarily from **pre-admission longitudinal eGFR**, not ICD codes/problem lists and not eGFR during AKI:
+- G3a: eGFR 45–59
+- G3b: 30–44
+- G4: 15–29
+- G5: <15 mL/min/1.73 m²
+- Require evidence that reduced kidney function was **chronic/persistent for ≥3 months before the AKI admission** when longitudinal labs permit.
+- Use outpatient/stable pre-AKI eGFR values and report the values/dates supporting CKD classification.
+- Do not classify CKD stage using eGFR calculated during AKI.
+- Diagnosis/problem-list codes may support CKD identification but **must not be the sole criterion**.
+
+**2. AKI present at/around the index admission by KDIGO**
+Determine AKI from actual serum creatinine and, if reliable data exist, urine output:
+- SCr increase ≥0.3 mg/dL within 48 hours, OR
+- SCr ≥1.5× baseline within 7 days, OR
+- Urine output <0.5 mL/kg/hour for ≥6 hours.
+
+Use longitudinal creatinine data to identify a credible **pre-AKI baseline creatinine**. Prefer stable outpatient measurements before admission. Do not rely solely on an AKI ICD code or problem-list entry.
+
+For each encounter report:
+- Baseline creatinine and date
+- Admission/initial creatinine
+- Creatinine that first satisfied KDIGO
+- AKI onset date/time
+- Peak creatinine
+- KDIGO stage and which criterion triggered it
+
+**3. No dialysis**
+Exclude patients who were on **maintenance dialysis before admission** AND exclude AKI encounters in which any kidney replacement therapy was actually performed.
+
+Search ALL available sources, including:
+- Hemodialysis procedure/CPT/ICD-PCS codes
+- Dialysis treatment/procedure records
+- CRRT records
+- SLED/PIRRT if available
+- Peritoneal dialysis treatment records
+- Dialysis orders plus documented treatment
+- Flowsheets/procedure documentation
+- Encounter/procedure tables
+- Chronic outpatient dialysis history
+
+Do **not** depend only on ESRD/dialysis diagnosis codes or the problem list. Do not classify a patient as dialyzed solely because a dialysis catheter was placed unless actual KRT treatment is documented.
+
+**4. Discharged alive**
+Confirm survival using discharge disposition/status and, when available, death date/time. Exclude in-hospital deaths.
+
+**Quality control**
+- Do not guess REACH table or column names. First inspect the available schema.
+- Deduplicate laboratory and procedure records.
+- Return **one row per qualifying AKI admission**.
+- Include patient ID, encounter ID, admission/discharge dates, CKD stage, supporting pre-AKI eGFR values/dates, baseline SCr, AKI SCr/onset, peak SCr, KDIGO stage, dialysis exclusion evidence, and discharge status.
+- Create explicit flags for `CKD_confirmed`, `KDIGO_AKI_confirmed`, `dialysis_during_encounter`, `chronic_dialysis_before_admission`, and `discharged_alive`.
+- Provide **counts after every inclusion/exclusion step** so I can audit cohort attrition.
+- Flag ambiguous cases rather than making assumptions.
+
+Before writing the final query, show:
+1. Tables selected
+2. Join keys
+3. CKD logic
+4. Baseline creatinine logic
+5. KDIGO AKI logic
+6. Dialysis exclusion logic
+7. Discharge-survival logic
+
+Then generate the final **Databricks SQL/Spark SQL query**.
