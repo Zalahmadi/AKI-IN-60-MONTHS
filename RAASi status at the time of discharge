@@ -1,0 +1,157 @@
+Using the **previously identified AKI-on-CKD cohort**, restrict the analysis to patients confirmed to be **taking a RAAS inhibitor during the 90 days before the AKI admission**.
+
+For each qualifying AKI hospitalization, determine whether the **RAASi was held/not resumed versus resumed/continued at the time of discharge**.
+
+For this step, use **ONLY medication information from the index inpatient AKI encounter**. Do not use outpatient medication records after discharge to determine discharge status.
+
+### Search all inpatient medication sources
+
+Inspect every relevant inpatient table available in REACH, including, if available:
+
+- Admission medication reconciliation / home medication list
+- Inpatient medication orders
+- Medication order status/history
+- Medication administration record (MAR)
+- Pharmacy medication orders
+- Held medication indicators
+- Discontinued medication indicators
+- Medication reconciliation at discharge
+- Discharge medication list
+- Discharge prescriptions
+- Discharge orders
+- Encounter medication tables
+- Medication ingredient/RxNorm tables
+- Discharge summary medication section or other structured discharge documentation, if available
+
+**Do not rely on only one table.**
+
+### RAASi definition
+
+Identify medications by **generic/active ingredient**, preferably using RxNorm or structured ingredient fields.
+
+Include:
+
+- ACE inhibitors
+- ARBs
+- ARNI products containing an ARB
+- Direct renin inhibitors, if present
+- Fixed-dose combination products containing any of the above
+
+Correctly handle combination products.
+
+For example, if a patient was taking **losartan/HCTZ before admission** and was discharged on **losartan alone**, classify the RAASi component as **resumed**.
+
+If discharged on HCTZ alone without losartan, classify the RAASi as **not resumed**.
+
+### Define discharge groups
+
+Create:
+
+`RAASi_discharge_status = RESUMED / NOT_RESUMED / UNCERTAIN`
+
+**RESUMED**
+Evidence from the index hospitalization that a RAASi was intended to be active after discharge, including:
+
+- Listed as continue/resume on discharge medication reconciliation
+- Active on discharge medication list
+- New discharge prescription/order for a RAASi
+- Fixed-dose combination containing a RAASi prescribed at discharge
+- Different RAASi prescribed at discharge, even if not the identical pre-admission agent
+
+**NOT_RESUMED**
+Evidence that RAASi therapy was intentionally not active at discharge, including:
+
+- Explicitly discontinued
+- Explicitly held with instructions not to resume
+- Listed under stopped/discontinued discharge medications
+- Pre-admission RAASi absent from the final discharge regimen **only when the discharge medication reconciliation is complete enough to establish that omission represents non-resumption**
+
+**UNCERTAIN**
+Use when:
+
+- Discharge medication reconciliation is missing or incomplete
+- Medication tables conflict
+- RAASi appears held during hospitalization but discharge status cannot be established
+- There is insufficient evidence to distinguish intentional discontinuation from missing data
+
+**Do not automatically classify absence of a medication record as NOT_RESUMED.**
+
+### Important distinction
+
+Separately capture:
+
+- `RAASi_held_during_AKI`
+- `RAASi_resumed_before_discharge`
+- `RAASi_active_at_discharge`
+
+A medication can be **held during the AKI hospitalization and later resumed at discharge**. Do not classify these patients as NOT_RESUMED.
+
+### For each AKI encounter include
+
+- Patient ID
+- Encounter ID
+- Admission date
+- Discharge date
+- Pre-admission RAASi ingredient
+- Pre-admission combination product and ingredients
+- Admission medication reconciliation status
+- Whether RAASi was held during hospitalization
+- Hold date/time if available
+- Whether RAASi was administered during hospitalization
+- Last inpatient RAASi administration date/time
+- Discharge RAASi ingredient
+- Discharge product name
+- Discharge dose/frequency
+- Discharge medication status
+- Whether the discharge RAASi was the same agent, different RAASi, or changed from combination product to individual component
+- `RAASi_discharge_status`
+- Source table(s) supporting the classification
+- `RAASi_discharge_source_count`
+- `RAASi_discharge_confidence = HIGH / MODERATE / LOW`
+
+### Cross-validation
+
+Whenever possible, confirm discharge status from **≥2 independent inpatient sources**, especially:
+
+- Discharge medication reconciliation
+- Discharge medication list/prescription
+- Final inpatient medication orders
+- Pharmacy medication records
+- Discharge summary medication documentation
+
+If sources conflict, prioritize the **final discharge medication reconciliation/prescription** and flag the conflict for review rather than silently resolving it.
+
+### Quality control
+
+- First inspect the REACH schema; **do not guess table or column names**.
+- Restrict all medication searches in this step to the **same index AKI inpatient encounter**.
+- Do not redefine the AKI/CKD cohort.
+- Do not use outpatient medication records after discharge to infer discharge status.
+- Normalize generic ingredients and combination products.
+- Deduplicate medication records.
+- Do not mistake an inpatient `HOLD` order for permanent discontinuation at discharge.
+- Do not mistake a discontinued inpatient order followed by a discharge prescription as NOT_RESUMED.
+- Return **one final row per AKI encounter**.
+- Also provide a separate medication-level audit table if needed.
+
+Provide counts for:
+
+1. Total pre-AKI RAASi users
+2. RAASi **RESUMED/CONTINUED at discharge**
+3. RAASi **NOT RESUMED at discharge**
+4. **UNCERTAIN**
+5. Held during AKI but subsequently resumed
+6. Never held during hospitalization
+7. Discharge status confirmed by ≥2 inpatient sources
+
+Before generating the final query, show:
+
+1. All inpatient medication/discharge tables searched
+2. Join keys
+3. RAASi ingredient mapping
+4. Combination-product handling
+5. Logic for identifying inpatient medication holds
+6. Logic for determining final discharge status
+7. Conflict-resolution hierarchy
+
+Then generate the final **Databricks SQL/Spark SQL query**.
