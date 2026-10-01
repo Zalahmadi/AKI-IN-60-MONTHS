@@ -1,0 +1,93 @@
+Using the **previously defined AKI-on-CKD cohort of pre-admission RAASi users**, compare the **last valid blood pressure before discharge from the index AKI hospitalization** between:
+
+1. **RAASi RESUMED/CONTINUED at discharge**
+2. **RAASi NOT RESUMED at discharge**
+
+Use the previously established RAASi discharge classification. **Do not redefine the cohort or medication groups.**
+
+### Discharge blood pressure
+
+For each AKI encounter:
+
+- Search **all inpatient vital-sign and flowsheet tables** associated with that exact encounter.
+- Include routine nursing/bedside blood-pressure measurements and other validated inpatient vital-sign sources.
+- Retrieve both **systolic BP (SBP)** and **diastolic BP (DBP)**.
+- Use the **last valid BP measurement recorded before the actual discharge date/time** as the primary discharge BP.
+- Prefer the measurement timestamp over documentation/signing time.
+- Do not use BP measurements after discharge or from another encounter.
+- Do not substitute outpatient BP measurements.
+
+Search all potentially relevant sources, including when available:
+- Inpatient vital-sign tables
+- Nursing flowsheets
+- Encounter flowsheets
+- ICU flowsheets
+- ED-to-inpatient flowsheets if part of the same admission
+- Structured nursing documentation
+- Other structured inpatient BP fields
+
+### Exclude unreliable measurements
+
+Exclude:
+- Duplicate BP records
+- Clearly erroneous/impossible values
+- Cancelled/entered-in-error measurements
+- BP measurements belonging to another encounter
+- Intraoperative/procedural BP measurements unless they are the only available measurements near discharge; if used, flag them separately
+
+If both invasive arterial-line BP and noninvasive cuff BP are available near discharge, identify the source and **prefer routine noninvasive discharge vital signs unless the available data structure clearly indicates another clinically appropriate final documented BP**.
+
+### Include
+
+For each patient/encounter report:
+
+- Patient ID
+- Encounter ID
+- Admission date
+- Discharge date/time
+- `RAASi_discharge_status`
+- Last SBP
+- Last DBP
+- MAP if directly recorded
+- BP measurement date/time
+- Hours from BP measurement to discharge
+- BP measurement method/source if available
+- Vital-sign table/source used
+
+### Comparison
+
+Compare **RAASi RESUMED vs NOT RESUMED** for:
+
+- Number of encounters in each group
+- Number and percentage with a valid discharge BP
+- Mean ± SD for SBP
+- Median and IQR for SBP
+- Mean ± SD for DBP
+- Median and IQR for DBP
+- Minimum and maximum
+- Statistical comparison between groups
+
+Make **discharge SBP the primary BP comparison**, with DBP reported as a secondary measure.
+
+Keep patients with `RAASi_discharge_status = UNCERTAIN` separate and **exclude them from the primary resumed-vs-not-resumed comparison**.
+
+### Quality control
+
+- First inspect the REACH schema; **do not guess table or column names**.
+- Restrict BP measurements to the **same index AKI inpatient encounter**.
+- Deduplicate vital-sign records.
+- Confirm that SBP and DBP belong to the same BP measurement/time whenever possible.
+- Do not automatically use the highest or lowest BP; use the **chronologically last valid BP before discharge**.
+- Report how many encounters have no valid BP before discharge.
+- Return **one final row per AKI encounter**.
+
+Before generating the final query, show:
+
+1. All vital-sign/flowsheet tables searched
+2. Join keys
+3. BP component identification
+4. Duplicate/error handling
+5. Definition of the last discharge BP
+6. RAASi discharge-group field used
+
+Then generate the final **Databricks SQL/Spark SQL query** and the **RESUMED vs NOT RESUMED BP comparison**.
