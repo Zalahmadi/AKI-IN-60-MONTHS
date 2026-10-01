@@ -1,0 +1,64 @@
+Using the **previously defined AKI-on-CKD cohort of pre-admission RAASi users**, compare **serum potassium at the time of discharge from the index AKI hospitalization** between:
+
+1. **RAASi RESUMED/CONTINUED at discharge**
+2. **RAASi NOT RESUMED at discharge**
+
+Use the previously established discharge RAASi classification. **Do not redefine the cohort or medication groups.**
+
+### Discharge potassium
+
+For each AKI encounter:
+
+- Search **all inpatient laboratory tables** associated with that exact encounter.
+- Identify **serum/plasma potassium only**.
+- Exclude urine potassium, point-of-care results if not comparable to central laboratory values, duplicate records, cancelled tests, and invalid/hemolyzed results when a specimen-quality flag is available.
+- Use the **last valid serum/plasma potassium collected before the actual discharge date/time** as the primary discharge potassium.
+- Prefer **specimen collection time** over result-posting time.
+- Record the interval between potassium collection and discharge.
+- Do not use potassium values obtained after discharge or from a different encounter.
+
+Include:
+- Patient ID
+- Encounter ID
+- Admission date
+- Discharge date/time
+- `RAASi_discharge_status`
+- Discharge potassium value
+- Potassium units
+- Specimen collection date/time
+- Hours from potassium measurement to discharge
+- Laboratory source/table
+- Hemolysis/specimen-quality flag if available
+
+### Comparison
+
+Compare **RESUMED vs NOT RESUMED** using:
+
+- Number of patients in each group
+- Number and percentage with a valid discharge potassium
+- Mean ± SD
+- Median and IQR
+- Minimum and maximum
+- Statistical comparison of potassium between groups
+
+Keep `UNCERTAIN` RAASi discharge status separate and **do not include it in the primary comparison**.
+
+### Quality control
+
+- First inspect the REACH schema; **do not guess table or column names**.
+- Restrict labs to the **same index AKI inpatient encounter**.
+- Deduplicate potassium results.
+- Standardize units before comparison if multiple units exist.
+- Do not substitute an admission or outpatient potassium when discharge potassium is unavailable.
+- Report how many encounters had **no valid potassium before discharge**.
+- Return **one final row per AKI encounter** for the patient-level dataset.
+
+Before generating the query, show:
+1. Laboratory tables searched
+2. Join keys
+3. Potassium test/component identification
+4. Duplicate/hemolysis handling
+5. Definition of the discharge potassium
+6. RAASi discharge-group field used
+
+Then generate the final **Databricks SQL/Spark SQL query** and the **RESUMED vs NOT RESUMED comparison**.
